@@ -48,6 +48,7 @@ body{
 	background-color:red;
 	float:left;
 	height: 100%;
+	width:50%;
 }
 #contenu{
 	background-color:green;
