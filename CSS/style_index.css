@@ -5,6 +5,8 @@ body{
 	left:0;
 	top:20%;
 	position:absolute;
+	height:80%;
+	width:100%;
 }
 #titre{
 	text-align:center;
@@ -48,7 +50,9 @@ body{
 	background-color:red;
 	float:left;
 	height: 100%;
-	width:50%;
+	width:20%;
+	max-width: 230px;
+    min-width: 50px;
 }
 #contenu{
 	background-color:green;
