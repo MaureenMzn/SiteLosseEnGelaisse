@@ -1,6 +1,9 @@
 body{
 	padding-top:20%;
 }
+.bouton{
+	float:right;
+}
 .block{
 	left:0;
 	top:20%;
