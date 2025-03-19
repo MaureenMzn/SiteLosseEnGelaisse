@@ -22,8 +22,8 @@ body{
 	padding-top:20px;
 	height:80%;
 	width:20%;
-	max-width:100px;
-	min-width:2px;
+	max-width: 230px;
+    min-width: 50px;
 	border:2px solid black;
 	position:absolute;
 	left:0;
