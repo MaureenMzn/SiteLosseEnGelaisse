@@ -8,9 +8,19 @@ body{
 	height:80%;
 	width:100%;
 }
+.actu{
+	text-align:center;
+	border:2px solid red;
+}
+#block_actu {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 10px 1em;
+	padding: 0% 3% 0% 3%;
+  
+}
 #titre{
 	text-align:center;
-	border:2px solid black;
 }
 #entete{
 	width:100%;
@@ -27,7 +37,7 @@ body{
 }
 #menu{
 	padding-top:20px;
-	background-color:red;
+	background-color:yellow;
 	float:left;
 	height: 100%;
 	width:20%;
