@@ -1,6 +1,11 @@
 body{
 	padding-top:20%;
 }
+.block{
+	left:0;
+	top:20%;
+	position:absolute;
+}
 #titre{
 	text-align:center;
 	border:2px solid black;
@@ -18,24 +23,33 @@ body{
 	align-items: center;
 	justify-content: center;
 }
+/* #menu{ */
+	/* padding-top:20px; */
+	/* height:80%; */
+	/* width:20%; */
+	/* max-width: 230px; */
+    /* min-width: 50px; */
+	/* border:2px solid black; */
+	/* position:absolute; */
+	/* left:0; */
+	/* top:20%; */
+	/* z-index:500; */
+	/* text-align:center; */
+	/* --lMenu = height; */
+/* } */
+/* #contenu{ */
+	/* position:absolute; */
+	/* background-color:green; */
+	/* left:var(--lMenu); */
+	/* top:20%; */
+	/* height:80%; */
+/* } */
 #menu{
-	padding-top:20px;
-	height:80%;
-	width:20%;
-	max-width: 230px;
-    min-width: 50px;
-	border:2px solid black;
-	position:absolute;
-	left:0;
-	top:20%;
-	z-index:500;
-	text-align:center;
-	--lMenu = height;
+	background-color:red;
+	float:left;
+	height: 100%;
 }
 #contenu{
-	position:absolute;
 	background-color:green;
-	left:var(--lMenu);
-	top:20%;
-	height:80%;
 }
+
