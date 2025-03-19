@@ -30,4 +30,12 @@ body{
 	top:20%;
 	z-index:500;
 	text-align:center;
+	--lMenu = height;
+}
+#contenu{
+	position:absolute;
+	background-color:green;
+	left:var(--lMenu);
+	top:20%;
+	height:80%;
 }
