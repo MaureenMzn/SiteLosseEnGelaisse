@@ -3,6 +3,10 @@ body{
 }
 .bouton{
 	float:right;
+	margin-right:1%;
+	height:100%;
+	align-items:end;
+	color:yellow;
 }
 .block{
 	left:0;
@@ -34,9 +38,6 @@ body{
 	top:0;
 	background-color:white;
 	z-index:1000;
-	display:flex;
-	align-items: center;
-	justify-content: center;
 }
 #menu{
 	padding-top:20px;
@@ -49,6 +50,7 @@ body{
 	border:2px solid black;
 	text-align:center;
 	margin-right:2%;
+	align-items:center;
 }
 #contenu{
 	background-color:green;
