@@ -8,13 +8,13 @@ body{
 	height:80%;
 	width:100%;
 }
-.actu{
+.carto{
 	text-align:center;
 	border:2px solid red;
 }
-#block_actu {
+#block_carto {
 	display: grid;
-	grid-template-columns: 1fr 3fr 1fr;
+	grid-template-columns: 1fr 4fr;
 	gap: 10px 1em;
 	padding: 0% 3% 0% 3%;
   
