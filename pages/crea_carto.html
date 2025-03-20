@@ -71,9 +71,8 @@
 		center: new L.LatLng(48.560058073,-3.1502330 ),
 		zoom: 17
 		});
-	var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/[votretoken]/997/256/{z}/{x}/{y}.png',
-		cloudmadeAttribution = 'Données de la carte &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> et contributeurs, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Images &copy; <a href="http://cloudmade.com">CloudMade</a>',
-		cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
-		map.addLayer(cloudmade);
+	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
 </script>
 </html>
