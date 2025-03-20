@@ -1,12 +1,21 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Agglomération de Losse-en-Gelaisse</title>
-  <link rel="stylesheet" href="../CSS/style_CreaCarto.css">
-  <!-- <link rel="stylesheet" href="https://maureenmzn.github.io/SiteLosseEnGelaisse/CSS/style_CreaCarto.css"> -->
-  <script src="script.js"></script>
+	<meta charset="utf-8">
+	<title>Agglomération de Losse-en-Gelaisse</title>
+	<link rel="stylesheet" href="../CSS/style_CreaCarto.css">
+	<!-- <link rel="stylesheet" href="https://maureenmzn.github.io/SiteLosseEnGelaisse/CSS/style_CreaCarto.css"> -->
+	<script src="script.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
 </head>
+<script>
+	var map = L.map('map').setView([51.505, -0.09], 13);
+</script>
 <body>
 
 	<div id="entete">
@@ -45,7 +54,7 @@
 			<h2> Titre </h2>
 			<div id="block_carto">
 				<div class="carto">Sélection des couches</div>
-				<div class="carto">Carte</div>
+				<div id ="map" class="carto">Carte</div>
 			</div>
 			
 			<br>
