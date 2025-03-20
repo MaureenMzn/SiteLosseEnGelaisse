@@ -2,11 +2,12 @@ body{
 	padding-top:20%;
 }
 .bouton{
-	float:right;
 	margin-right:1%;
 	height:85%;
 	align-items:end;
 	background-color:yellow;
+	display:flex;
+	align-items: flex-end;
 }
 .block{
 	left:0;
@@ -40,6 +41,7 @@ body{
 	z-index:1000;
 	align-items:center;
 	display:flex;
+	justify-content: space-between;
 }
 #menu{
 	padding-top:20px;
