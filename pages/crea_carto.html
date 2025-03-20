@@ -52,7 +52,7 @@
 			<h2> Titre </h2>
 			<div id="block_carto">
 				<div class="carto">Sélection des couches</div>
-				<div class="carto"></div>
+				<div id="map" class="carto"></div>
 			</div>
 			
 			<br>
@@ -60,7 +60,6 @@
 				<a href="">Documentation</a>
 				 - 
 				<a href="">Contact</a>
-				<div id="map"></div>
 			</div>
 			
 		</div>
@@ -69,8 +68,12 @@
 </body>
 <script>
 	var map = new L.Map('map', {
-    center: new L.LatLng(48.560058073,-3.1502330 ),
-    zoom: 17
-	});
+		center: new L.LatLng(48.560058073,-3.1502330 ),
+		zoom: 17
+		});
+	var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/[votretoken]/997/256/{z}/{x}/{y}.png',
+		cloudmadeAttribution = 'Données de la carte &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> et contributeurs, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Images &copy; <a href="http://cloudmade.com">CloudMade</a>',
+		cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
+		map.addLayer(cloudmade);
 </script>
 </html>
