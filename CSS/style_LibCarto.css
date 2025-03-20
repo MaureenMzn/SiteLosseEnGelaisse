@@ -18,12 +18,11 @@ body{
 .carto{
 	text-align:center;
 	border:2px solid red;
-	height:100%;
 	background-color:white;
 }
 #block_carto {
 	display: grid;
-	grid-template-columns: 1fr 4fr;
+	grid-template-columns: 1fr 1fr 1 fr 1fr;
 	gap: 10px 1em;
 	padding: 0% 3% 0% 3%;
 	height:70%;
