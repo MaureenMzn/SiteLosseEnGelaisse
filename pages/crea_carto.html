@@ -60,15 +60,16 @@
 				<a href="">Documentation</a>
 				 - 
 				<a href="">Contact</a>
+				<div id="map"></div>
 			</div>
 			
 		</div>
 		
-		<div id="map"></div>
-		
 	</div>
 </body>
 <script>
-	var map = L.map('map').setView([51.505, -0.09], 13);
+	var map = new L.Map('map', {
+    center: new L.LatLng(48.560058073,-3.1502330 ),
+    zoom: 17
 </script>
 </html>
