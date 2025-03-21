@@ -10,6 +10,15 @@
 	<!-- <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> -->
 	<script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
 </head>
+<script>
+	function visu_osm(elmt) {
+		if (elmt.checked) {
+			osm.setVisible(true);
+		  } else {
+			osm.setVisible(false);
+		  }
+	};
+</script>
 
 <body>
 
@@ -48,7 +57,11 @@
 			
 			<h2> Titre </h2>
 			<div id="block_carto">
-				<div class="carto">Sélection des couches</div>
+				<div class="carto">
+					Sélection des couches
+					<br>
+					<input  onchange="visu_osm(this);" checked class="switch" type="checkbox" id="erp" name="switcher" /><label>OSM</label>
+				</div>
 				<div id="map" class="carto"></div>
 			</div>
 			
