@@ -71,14 +71,14 @@
 		<!-- }).addTo(map); -->
 <!-- </script> -->
 <script>
-	var osm = new TileLayer({
-            source: new OSM()
+	var osm = new ol.layer.Tile({
+            source: new ol.source.OSM()
 	});
 	
-	const map = new Map({
+	const map = new ol.Map({
 		target: 'map',
 		layers: [osm],
-		view: new View({
+		view: new ol.View({
 
 			center: [1.343072,43.594132],
 			zoom: 16,
