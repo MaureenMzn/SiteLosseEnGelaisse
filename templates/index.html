@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Agglomération de Losse-en-Gelaisse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style_index.css') }}">
+</head>
+
+<body>
+
+	<div id="entete">
+		<a id="titre" href="/">Losse-en-Gelaisse</a>
+    <div class="authentification">
+		<!--Bouton de test pour l'identification-->
+      <a href="/connexion">
+        <button>Identification</button>
+      </a>
+    </div>
+
+	</div>
+	
+	<div class="block">
+	
+		<div id="menu">
+      <a class="menu-main" href="http://151.80.27.28:8081/geonetwork/">Données</a>
+    
+      <div class="menu-main menu-collapsible" tabindex="0">
+        Cartographie
+        <span class="arrow">&#9656;</span>
+      </div>
+      <div class="submenu">
+        <a class="menu-sub" href="/carto">Création</a>
+        <a class="menu-sub" href="/lib">Librairie</a>
+      </div>
+    
+      <a class="menu-main" href="/trajet">Itinéraire</a>
+    </div>
+
+		</div>
+			
+		<div id="contenu">
+		
+			<p>
+		     Bienvenue sur le site de l’agglomération de Losse-en-Gelaisse.<br>
+         Ce site a été développé dans le cadre de nos études à IDGEO, dans le but de répondre à une étude de cas réalisée pour l’examen du diplôme de chef de projet géomatique.
+			</p>
+			
+			<hr>
+			
+			<h2> Actualités </h2>
+			<!--Block de présentation des actuaités de l'aggomération-->	
+			<div id="block_actu">
+				<div class="actu">Actu 1</div>
+				<div class="actu">Actu 2</div>
+				<div class="actu">Actu 3</div>
+			</div>
+			
+			<br>
+			<div id="bas_page">
+				<a href="https://github.com/MaureenMzn/SiteLosseEnGelaisse">Documentation</a>
+				 - 
+				<a class="" href="">Contact</a>
+			</div>
+			
+		</div>
+		
+	</div>
+ 
+<script>
+	//Fonction du sous-menu
+  document.addEventListener('DOMContentLoaded', () => {
+      const cartoToggle = document.querySelector('.menu-collapsible');
+      const submenu = document.querySelector('.submenu');
+  
+      cartoToggle.addEventListener('click', () => {
+          submenu.classList.toggle('open');
+          cartoToggle.classList.toggle('open');
+      });
+  
+      cartoToggle.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              submenu.classList.toggle('open');
+              cartoToggle.classList.toggle('open');
+          }
+      });
+  });
+
+</script>
+</body>
+</html>

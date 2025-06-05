@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<title>Agglomération de Losse-en-Gelaisse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style_carto.css') }}">
+	<!-- Chargement des bibliothèques openlayer-->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css">
+    <script src="https://cdn.jsdelivr.net/npm/ol@7.3.0/dist/ol.js"></script>
+	<!-- Chargement de la bibliothèque proj4js pour les projections-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
+	<!--Définition de la projection lambert 93 EPSG:2154-->
+	<script>
+		proj4.defs("EPSG:2154","+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+		ol.proj.proj4.register(proj4);
+	</script>
+<!--Chargement d'une bibliothèque permettant une capture d'écran de la page-->
+ <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+</head>
+<script>
+    // Fonction qui affiche ou cache un élément selon son état actuel
+	function toggleOptions(id) {
+		const el = document.getElementById(id);
+		el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+	};
+
+	// Fonction pour gérer l'opacité des couches
+	function updateOpacity(layer, value) {
+		const opacity = parseFloat(value); 
+		layer.setOpacity(opacity);  
+	}
+
+	//gestion de l'opacité des couches avec les barres slide
+	document.addEventListener("DOMContentLoaded", function () {
+		// Ajoute l'événement sur les sliders après que la structure de la page soit chargée
+		document.querySelectorAll('.layer-options input[type="range"]').forEach((slider) => {
+			slider.addEventListener('input', function (event) {
+				const layerId = event.target.closest('.layer-toggle').querySelector('label').textContent.toLowerCase();
+				const opacity = event.target.value;
+
+				// Associe chaque slider à la bonne couche OpenLayers
+				if (layerId === 'osm') {
+					updateOpacity(osm, opacity);  
+				} else if (layerId === 'erp') {
+					updateOpacity(erp, opacity);  
+				} else if (layerId === 'pmr') {
+					updateOpacity(pmr, opacity);  
+				}else if (layerId === 'cheminement') {
+					updateOpacity(cheminement, opacity);  
+				}else if (layerId === 'travaux') {
+					updateOpacity(travaux, opacity);  
+				}
+			});
+		});
+	});
+
+	//fonction de sélection des styles de couche
+	document.addEventListener("DOMContentLoaded", function() {
+		const styleSelector = document.getElementById('style-selector');
+		const legendContainer = document.getElementById('legend-container');  // Zone de légende
+
+		if (styleSelector) {
+			styleSelector.addEventListener('change', function(event) {
+				const selectedStyle = event.target.value;  // Récupère la valeur sélectionnée
+
+				// Mettre à jour la légende en fonction du style sélectionné
+				let legendHTML = '';
+
+				// Légende basée sur le style sélectionné
+				switch (selectedStyle) {
+					case 'erpAccessible':
+						// Appliquer le style "Accessible"
+						erp.setStyle(styleErpAccessible);
+						
+						// Afficher les différentes couleurs avec leurs significations
+						legendHTML = `
+							<div>
+								<span class="legend-point" style="background-color: green;"></span>
+								<span>Accessible</span>
+							</div>
+							<div>
+								<span class="legend-point" style="background-color: orange;"></span>
+								<span>Praticable</span>
+							</div>
+							<div>
+								<span class="legend-point" style="background-color: red;"></span>
+								<span>Inaccessible</span>
+							</div>
+							<div>
+								<span class="legend-point" style="background-color: black;"></span>
+								<span>Non adaptable</span>
+							</div>
+						`;
+						break;
+					case 'erpType':
+						// Appliquer le style "Type"
+						erp.setStyle(styleErpType);
+						legendHTML = `
+							<div>
+								<span class="legend-point" style="background-color: red;"></span>
+								<span>Type d'ERP - Exemple 1</span>
+							</div>
+						`;
+						break;
+					default:
+						// Par défaut, appliquer le style de base
+						erp.setStyle(erpStyle);
+						legendHTML = `
+							<div>
+								<span class="legend-point" style="background-color: green;"></span>
+								<span>ERP</span>
+							</div>
+						`;
+						break;
+				}
+
+				// Mettre à jour la zone de légende avec le contenu approprié
+				legendContainer.innerHTML = legendHTML;
+			});
+		} else {
+			console.error("L'élément style-selector n'a pas été trouvé dans le DOM.");
+		}
+	});
+
+	function generateRandomColor() {
+		const letters = '0123456789ABCDEF';
+		let color = '#';
+		for (let i = 0; i < 6; i++) {
+			color += letters[Math.floor(Math.random() * 16)];
+		}
+		return color;
+	}
+
+	//Fonction permettant d'afficher ou non les couches dans la carte si elles sont cochées ou pas
+	function visu_osm(elmt) {
+		if (elmt.checked) {
+			osm.setVisible(true);
+		  } else {
+			osm.setVisible(false);
+		  }
+	};
+	function visu_erp(elmt) {
+		if (elmt.checked) {
+			erp.setVisible(true);
+		  } else {
+			erp.setVisible(false);
+		  }
+	};
+	function visu_pmr(elmt) {
+		if (elmt.checked) {
+			pmr.setVisible(true);
+		  } else {
+			pmr.setVisible(false);
+		  }
+	};
+	function visu_chmnt(elmt) {
+		if (elmt.checked) {
+			cheminement.setVisible(true);
+		  } else {
+			cheminement.setVisible(false);
+		  }
+	};
+	function visu_travaux(elmt) {
+		if (elmt.checked) {
+			travaux.setVisible(true);
+		  } else {
+			travaux.setVisible(false);
+		  }
+	};
+
+	//Fonction enregistrant la div contenu en .png lorsque l'utlisateur clique sur le bouton "SaveCarto"
+   document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("SaveCarto").addEventListener("click", function () {
+            const contenu = document.getElementById("contenu");
+    
+            html2canvas(contenu).then(function (canvas) {
+                const link = document.createElement("a");
+                link.download = "carte.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        });
+    });
+    
+</script>
+
+<body>
+
+	<div id="entete">
+		<a id="titre" href="/">Losse-en-Gelaisse</a>
+		<br>
+		<!-- Bouton pour sauvegarder la carte -->
+		<div class="save">
+			<input type="button" id="SaveCarto" value="Sauvegarder Carte" />
+		</div>
+	</div>
+	
+	<div class="block">
+	
+		<div id="menu">
+      <a class="menu-main" href="http://151.80.27.28:8081/geonetwork/">Données</a>
+    
+      <div class="menu-main menu-collapsible" tabindex="0">
+        Cartographie
+        <span class="arrow">&#9656;</span>
+      </div>
+      <div class="submenu">
+        <a class="menu-sub" href="/carto">Création</a>
+        <a class="menu-sub" href="/lib">Librairie</a>
+      </div>
+    
+      <a class="menu-main" href="/trajet">Itinéraire</a>
+    </div>
+			
+		<div id="contenu">
+
+			<!-- Titre de la carte éditable par l'utilisateur -->
+			<h2 contenteditable="true">Titre carte</h2>
+			<!-- Flèche nord sur la carte -->
+			<div id="north-arrow">
+				<img src="{{ url_for('static', filename='img/nord.svg') }}" alt="Flèche Nord" />
+			</div>
+
+			<div id="block_carto">
+				<!-- Section de sélection des couches visibles -->
+				<div id="layer" class="carto">
+					Sélection des couches
+					<br>
+
+					<!-- Couche OSM -->
+					<div class="layer-toggle">
+						<div class="header">
+							<input onchange="visu_osm(this);" checked class="switch" type="checkbox" />
+							<label>OSM</label>
+							<button onclick="toggleOptions('osm-options')">...</button>
+						</div>
+						<div id="osm-options" class="layer-options">
+							<label>Opacité :</label>
+							<input type="range" min="0" max="1" step="0.01" value="1" class="opacity-slider">
+						</div>
+					</div>
+
+					<!-- Couche ERP -->
+					<div class="layer-toggle">
+						<div class="header">
+							<input onchange="visu_erp(this);" checked class="switch" type="checkbox" />
+							<label>ERP</label>
+							<button onclick="toggleOptions('erp-options')">...</button>
+						</div>
+						<div id="erp-options" class="layer-options">
+							<label>Opacité :</label>
+							<input type="range" min="0" max="1" step="0.01" value="1" class="opacity-slider">
+							<select id="style-selector" class="style-selector">
+								<option value="erpStyle">Style de base</option>
+								<option value="erpAccessible">Style Accessible</option>
+								<option value="erpType">Style Type</option>
+							</select>
+							<div id="legend-container" style="margin-top: 10px;">
+								<!-- La légende sera affichée ici en fonction du style choisi -->
+							</div>
+						</div>
+					</div>
+
+					<!-- Couche PMR -->
+					<div class="layer-toggle">
+						<div class="header">
+							<input onchange="visu_pmr(this);" checked class="switch" type="checkbox" />
+							<label>PMR</label>
+							<button onclick="toggleOptions('pmr-options')">...</button>
+						</div>
+						<div id="pmr-options" class="layer-options">
+							<label>Opacité :</label>
+							<input type="range" min="0" max="1" step="0.01" value="1" class="opacity-slider">
+						</div>
+					</div>
+
+					<!-- Couche Cheminement -->
+					<div class="layer-toggle">
+						<div class="header">
+							<input onchange="visu_chmnt(this);" checked class="switch" type="checkbox" />
+							<label>Cheminement</label>
+							<button onclick="toggleOptions('chmnt-options')">...</button>
+						</div>
+						<div id="chmnt-options" class="layer-options">
+							<label>Opacité :</label>
+							<input type="range" min="0" max="1" step="0.01" value="1" class="opacity-slider">
+						</div>
+					</div>
+
+					<!-- Couche Travaux -->
+					<div class="layer-toggle">
+						<div class="header">
+							<input onchange="visu_travaux(this);" checked class="switch" type="checkbox" />
+							<label>Travaux</label>
+							<button onclick="toggleOptions('travaux-options')">...</button>
+						</div>
+						<div id="travaux-options" class="layer-options">
+							<label>Opacité :</label>
+							<input type="range" min="0" max="1" step="0.01" value="1" class="opacity-slider">
+							<div id="date-filter-container">
+								<label for="start-input">Date :</label>
+								<input type="date" id="date-input">
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Zone d'affichage de la carte -->
+				<div id="map" class="carto"></div>
+			</div>
+
+			<br>
+			<div id="bas_page">
+				<a href="https://github.com/MaureenMzn/SiteLosseEnGelaisse">Documentation</a>
+				-
+				<a href="">Contact</a>
+			</div>
+
+		</div>
+		
+	</div>
+<script>
+	//Fonction d'ouverture/fermeture du sous-menu carthographie
+  document.addEventListener('DOMContentLoaded', () => {
+      const cartoToggle = document.querySelector('.menu-collapsible');
+      const submenu = document.querySelector('.submenu');
+  
+      cartoToggle.addEventListener('click', () => {
+          submenu.classList.toggle('open');
+          cartoToggle.classList.toggle('open');
+      });
+  
+      
+      cartoToggle.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              submenu.classList.toggle('open');
+              cartoToggle.classList.toggle('open');
+          }
+      });
+  });
+
+</script>
+</body>
+<script>
+	//définition des styles
+	const erpStyle = new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: 4, 
+            fill: new ol.style.Fill({ color: 'green' }), 
+        }),
+	});
+
+	var pmrStyle = new ol.style.Style({
+		image: new ol.style.Icon({
+			src: "{{ url_for('static', filename='img/handi.png') }}", 
+			scale: 0.05,                 
+			anchor: [0.5, 1],           
+		})
+	});
+
+	var travauxStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: '#00aaff',
+				width: 2,
+				lineDash: [4, 8], 
+			}),
+			fill: new ol.style.Fill({
+				color: 'rgba(0, 0, 255, 0)'  
+			})
+	});
+
+	const selectedStyle = new ol.style.Style({
+		image: new ol.style.Circle({
+			radius: 5,
+			fill: new ol.style.Fill({ color: 'yellow' }),
+			stroke: new ol.style.Stroke({ color: 'white', width: 1 })
+		})
+	});
+	// Fonction de style pour la couche 'cheminement' basée sur l'attribut 'accessible'
+	function style_acces_cheminement(feature) {
+		var accessibleValue = feature.get('accessible');
+		if (accessibleValue) {
+			accessibleValue = accessibleValue.trim().toLowerCase();  
+		}
+
+		var strokeColor = 'black';
+
+		// Applique des styles en fonction de la valeur de l'attribut 'accessible'
+		switch (accessibleValue) {
+			case 'accessible':
+				strokeColor = 'green';   
+				break;
+			case 'praticable':
+			case 'qualité d\'usage':
+				strokeColor = 'orange';  
+				break;
+			case 'inaccessible':
+				strokeColor = 'red';     
+				break;
+			case 'non transformable en accessible':
+				strokeColor = 'black';  
+				break;
+			default:
+				strokeColor = 'gray';    
+		}
+
+		// Retourne le style appliqué
+		return new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: strokeColor, 
+				width: 2
+			})
+		});
+	}
+
+	//fonction d'un style en fonction du type d'ERP (couleur aléatoire)
+	let erpTypeColors = {};
+
+	function styleErpType(feature) {
+		const erpType = feature.get('erptype');  // Récupère la valeur de 'erptype'
+
+		if (!erpTypeColors[erpType]) {
+			erpTypeColors[erpType] = generateRandomColor();
+		}
+
+		// Applique la couleur associée à l'attribut erptype
+		return new ol.style.Style({
+			image: new ol.style.Circle({
+				radius:4,
+				fill: new ol.style.Fill({
+					color: erpTypeColors[erpType] // Couleur basée sur erptype
+				})
+			})
+		});
+	}
+
+    // Fonction de style pour la couche 'ERP' basée sur l'attribut 'accessible'
+	function styleErpAccessible(feature) {
+		const accessibleValue = feature.get('accessible');
+
+		const prefix = accessibleValue ? accessibleValue.slice(0, 2) : '';
+
+		let color = 'gray'; 
+
+		switch (prefix) {
+			case '04':
+				color = 'green';  
+				break;
+			case '05':
+				color = 'black'; 
+				break;
+			case '03':
+				color = 'red';   
+				break;
+			case '00':
+				color = 'red';    
+				break;
+			case '01':
+			case '02':
+				color = 'orange'; 
+				break;
+			default:
+				color = 'gray';   
+				break;
+		}
+
+		// Applique le style avec la couleur déterminée
+		return new ol.style.Style({
+			image: new ol.style.Circle({
+				radius: 4,         
+				fill: new ol.style.Fill({
+					color: color  
+				})
+			})
+		});
+	}
+
+	//Définition des couches (type,source,projection,style appliqué)
+	var osm = new ol.layer.Tile({
+            source: new ol.source.OSM()
+	});
+
+	var erp = new ol.layer.Vector({
+		source: new ol.source.Vector({
+			url: 'http://151.80.27.28:5003/erp_json',
+			format: new ol.format.GeoJSON({
+				dataProjection: 'EPSG:2154',
+			}),
+		}),
+		style : erpStyle
+	});
+
+
+	var pmr = new ol.layer.Vector({
+		source: new ol.source.Vector({
+			url: 'http://151.80.27.28:5003/pmr_json',
+			format: new ol.format.GeoJSON({
+				dataProjection: 'EPSG:2154',  
+			}),
+		}),
+		style: pmrStyle,
+	});
+
+	var cheminement = new ol.layer.Vector({
+		source: new ol.source.Vector({
+			url: 'http://151.80.27.28:5003/cheminement_json',
+			format: new ol.format.GeoJSON({
+				dataProjection: 'EPSG:2154',   
+				featureProjection: 'EPSG:2154'
+			}),
+		}),
+		style:style_acces_cheminement
+	});
+
+	//définition de la source des travaux en fonction d'une date choisie
+  const travauxSource = new ol.source.Vector({
+    url: () => {
+      // Récupère la date sélectionnée
+      const selectedDate = document.getElementById("date-input").value;
+      
+      // Si une date est sélectionnée, formate l'URL en utilisant la date dans le chemin
+      if (selectedDate) {
+        return `http://151.80.27.28:5003/travaux_date_json/${selectedDate}`;
+      } else {
+        // Si aucune date n'est sélectionnée, charge tous les travaux 
+        return 'http://151.80.27.28:5003/travaux_json';
+      }
+    },
+    format: new ol.format.GeoJSON({
+      dataProjection: 'EPSG:2154',   
+      featureProjection: 'EPSG:2154' 
+    }),
+    strategy: ol.loadingstrategy.all,
+  });
+  
+  const travaux = new ol.layer.Vector({
+    source: travauxSource,
+    style: travauxStyle,
+  });
+  
+  // Ajoute un gestionnaire d'événements sur le champ de sélection de la date
+  document.getElementById("date-input").addEventListener("change", () => {
+    // Efface les anciennes données de la source avant de la recharger
+    travauxSource.clear();    
+      
+    // Recharge les données avec la nouvelle date
+    travauxSource.refresh();
+  });
+
+
+	//création de la carte
+	const map = new ol.Map({
+		target: 'map',
+		layers: [osm,cheminement,erp,pmr,travaux],
+		view: new ol.View({
+			center: [573928,6279934],
+			zoom: 13,
+			projection: 'EPSG:2154'
+		}),
+	});
+
+	//Fonction permettant à la flèche nord de suivre l'orientation de la carte
+  map.getView().on('change:rotation', function () {
+    const rotation = map.getView().getRotation();
+    document.getElementById('north-arrow').style.transform = `rotate(${rotation}rad)`; 
+  });
+
+	// Interaction de sélection
+	const selectInteraction = new ol.interaction.Select({
+		layers: [erp], 
+		style: selectedStyle // style à appliquer au point sélectionné
+	});
+
+	// Ajout de l'interaction à la carte
+	map.addInteraction(selectInteraction);
+
+	//afficher dans la console les infos du point sélectionné
+	selectInteraction.on('select', function (e) {
+		const selectedFeatures = e.selected;
+		if (selectedFeatures.length > 0) {
+			const feature = selectedFeatures[0];
+			console.log('Feature sélectionnée :', feature.getProperties());
+		}
+	});
+
+	//Ajout d'une échelle à la carte
+  const scaleLineControl = new ol.control.ScaleLine();
+  map.addControl(scaleLineControl);
+</script>
+</html>

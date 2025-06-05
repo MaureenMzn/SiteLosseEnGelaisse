@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Agglomération de Losse-en-Gelaisse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style_lib.css') }}">
+</head>
+<body>
+
+	<div id="entete">
+		<a id="titre" href="/">Losse-en-Gelaisse</a>
+		<br>
+        <!--Sélection du thème sur lequel trier les cartographies affichées (tri pas encore disponible)-->
+		<div class="bouton">
+			<select name="theme" id="theme-select">
+			  <option value="">Thématiques</option>
+			  <option value="transport">Transport</option>
+			  <option value="access">Accessibilité</option>
+			  <option value="commerce">Commerce</option>
+			  <option value="erp">ERP</option>
+			</select>
+		</div>
+	</div>
+	
+	<div class="block">
+	
+		<div id="menu">
+      <a class="menu-main" href="http://151.80.27.28:8081/geonetwork/">Données</a>
+    
+      <div class="menu-main menu-collapsible" tabindex="0">
+        Cartographie
+        <span class="arrow">&#9656;</span>
+      </div>
+      <div class="submenu">
+        <a class="menu-sub" href="/carto">Création</a>
+        <a class="menu-sub" href="/lib">Librairie</a>
+      </div>
+    
+      <a class="menu-main" href="/trajet">Itinéraire</a>
+    </div>
+			
+		<div id="contenu">
+			<div id="block_carto">
+				<div class="carto">
+                  <img src="static/img/carte_exemple.png" alt="Carte des zones de travaux le 15 mai" onclick="openModal(this.src)">
+                </div>
+				<div class="carto">Carte2</div>
+				<div class="carto">Carte3</div>
+				<div class="carto">Carte4</div>
+				<div class="carto">Carte5</div>
+			</div>
+      
+       <!--div d'affichage des cartes en plein écran'-->
+      <div id="modal" class="modal" onclick="closeModal()">
+        <span class="close">&times;</span>
+        <img id="modal-img" class="modal-content">
+      </div>
+			
+			<br>
+			<div id="bas_page">
+				<a class="" href="">Documentation</a>
+				 - 
+				<a class="" href="">Contact</a>
+			</div>
+			
+		</div>
+		
+	</div>
+<script>
+    //fonction du sous-menu
+  document.addEventListener('DOMContentLoaded', () => {
+      const cartoToggle = document.querySelector('.menu-collapsible');
+      const submenu = document.querySelector('.submenu');
+  
+      cartoToggle.addEventListener('click', () => {
+          submenu.classList.toggle('open');
+          cartoToggle.classList.toggle('open');
+      });
+      cartoToggle.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              submenu.classList.toggle('open');
+              cartoToggle.classList.toggle('open');
+          }
+      });
+  });
+
+  //Fonction pour ouvrir la carte sélectionnée en plein écran
+  function openModal(src) {
+    document.getElementById("modal-img").src = src;
+    document.getElementById("modal").style.display = "flex";
+  }
+
+  //fonction pour fermer l'affichage de la carte en plein écran
+  function closeModal() {
+    document.getElementById("modal").style.display = "none";
+  }
+
+</script>
+</body>
+</html>

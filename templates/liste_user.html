@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Identification</title>
+</head>
+<body>
+
+	<div id="entete">
+		<a href="http://151.80.27.28:5003/">Losse-en-Gelaisse</a>
+	</div>
+ 
+  <h1>Utilisateurs enregistrés</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Identifiant</th>
+                <th>Mot de passe</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Boucle sur les utilisateurs pour afficher leurs informations récupérées en python-->            {% for user in utilisateurs %}
+            {% for user in utilisateurs %}
+            <tr>
+                <td>{{ user.id_user }}</td>
+                <td>{{ user.identifiant }}</td>
+                <td>{{ user.mdp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="/connexion">Ajouter un nouvel utilisateur</a>
+
+</body>
+</html>

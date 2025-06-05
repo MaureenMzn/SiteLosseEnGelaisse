@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<title>Agglomération de Losse-en-Gelaisse</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='CSS/style_Trajet.css') }}">
+	<!-- Chargement des bibliothèques openlayer-->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css">
+	<script src="https://cdn.jsdelivr.net/npm/ol@7.3.0/dist/ol.js"></script>
+	<!-- Chargement de la bibliothèque proj4js pour les projections-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
+	<!--Définition de la projection lambert 93 EPSG:2154-->
+	<script>
+		proj4.defs("EPSG:2154", "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+		ol.proj.proj4.register(proj4);
+	</script>
+</head>
+
+
+<body>
+
+	<div id="entete">
+		<a id="titre" href="/">Losse-en-Gelaisse</a>
+	</div>
+	
+	<div class="block">
+	
+		<div id="menu">
+			<a class="plat" href="http://151.80.27.28:8081/geonetwork/">Données</a>
+			<br><br>
+			<hr>
+			<div id="carto"> Cartographie
+				<br><br>
+				<a class="plat" href="/carto">Création</a>
+				<a class="plat" href="/lib">Librairie</a>
+			</div>
+			<br>
+			<hr>
+			<br>
+			<a class="plat" href="/trajet">Itinéraire</a>
+			<br><br>
+			<hr>
+		</div>
+			
+		<div id="contenu">
+			
+			<h2>Calcul d'itinéraire</h2>
+      <div id="north-arrow">
+        <img src="{{ url_for('static', filename='img/nord.svg') }}" alt="Flèche Nord" />
+      </div>
+
+			<div id="block_carto">
+				<div id="map" class="carto"></div>
+        <div id="trajet" class="carto">Description du trajet.</div>
+			</div>
+			
+			<br>
+			<div id="bas_page">
+				<a href="">Documentation</a>
+				 - 
+				<a href="">Contact</a>
+			</div>
+			
+		</div>
+		
+	</div>
+</body>
+<script>
+	//définition des styles
+	const erpStyle = new ol.style.Style({
+      image: new ol.style.Circle({
+          radius: 4, // Taille des points (2 mm)
+          fill: new ol.style.Fill({ color: 'green' }), // Couleur rouge
+      }),
+  });
+	var pmrStyle = new ol.style.Style({
+		image: new ol.style.Icon({
+			src: "{{ url_for('static', filename='img/handi.png') }}", 
+			scale: 0.025,                 // Ajuste la taille selon ton image
+			anchor: [0.5, 1],            // Pour bien positionner l’icône sur le point
+		})
+	});
+  const selectedStyle = new ol.style.Style({
+		image: new ol.style.Circle({
+			radius: 5,
+			fill: new ol.style.Fill({ color: 'yellow' }),
+			stroke: new ol.style.Stroke({ color: 'white', width: 1 })
+		})
+	});
+
+	//définition des couches
+	var osm = new ol.layer.Tile({
+            source: new ol.source.OSM()
+	});
+
+	var erp = new ol.layer.Vector({
+		source: new ol.source.Vector({
+			url: 'http://151.80.27.28:5003/erp_json',
+			format: new ol.format.GeoJSON({
+				dataProjection: 'EPSG:2154',
+			}),
+		}),
+		style : erpStyle
+	});
+
+
+	var pmr = new ol.layer.Vector({
+		source: new ol.source.Vector({
+			url: 'http://151.80.27.28:5003/pmr_json',
+			format: new ol.format.GeoJSON({
+				dataProjection: 'EPSG:2154', 
+			}),
+		}),
+		style: pmrStyle,
+	});
+
+	var cheminement = new ol.layer.Vector({
+    source: new ol.source.Vector({
+      url: 'http://151.80.27.28:5003/cheminement_json',
+      format: new ol.format.GeoJSON({
+        dataProjection: 'EPSG:2154',
+        featureProjection: 'EPSG:2154'
+      })
+    }),
+    opacity: 0.4
+  });
+
+	//Création de la carte
+	const map = new ol.Map({
+		target: 'map',
+		layers: [osm,cheminement,erp,pmr],
+		view: new ol.View({
+			center: [573928,6279934],
+			zoom: 13,
+			projection: 'EPSG:2154'
+		}),
+	});
+
+ //Fonction pour que la flèche nord suive l'orientation de la carte
+  map.getView().on('change:rotation', function () {
+    const rotation = map.getView().getRotation();
+    document.getElementById('north-arrow').style.transform = `rotate(${rotation}rad)`; 
+  });
+
+	// Interaction de sélection
+	const selectInteraction = new ol.interaction.Select({
+		layers: [erp],
+		style: selectedStyle // style à appliquer au point sélectionné
+	});
+
+	// Ajout de l'interaction à la carte
+	map.addInteraction(selectInteraction);
+
+	// Nouvelle couche pour afficher le trajet
+  let trajetLayer;
+
+  //intéraction de sélection des ERP
+  selectInteraction.on('select', function (e) {
+  	const selectedFeatures = e.selected;
+  	if (selectedFeatures.length > 0) {
+  		const feature = selectedFeatures[0];
+  		const iderp = feature.get('iderp');
+
+		  //récupération des informations de l'ERP
+  		if (iderp) {
+       selectedErpInfos = {
+          name: feature.get('name') || 'Inconnu',
+          accessible: feature.get('accessible') || 'Inconnue',
+          erptype: feature.get('erptype') || 'Inconnu',
+          adresse: feature.get('adresse') || 'Inconnue',
+        };
+     
+				console.log('ERP sélectionné avec id:', iderp);
+			//lance la fonction d'affichage du trajet
+  			getTrajetPourERP(iderp);
+  		}
+  	}
+  });
+
+  //récupération du trajet à partir de la route crée dans app.py
+  function getTrajetPourERP(iderp) {
+  fetch(`http://151.80.27.28:5003/trajet_erp/${iderp}`)
+      .then(response => response.json())
+      .then(data => {
+        afficherTrajet(data);
+      })
+      .catch(error => {
+        console.error('Erreur lors de la récupération du trajet :', error);
+      });
+  }
+
+  function afficherTrajet(geojson) {
+    const trajetDiv = document.getElementById('trajet');
+    trajetDiv.innerHTML = ""; // On vide la div contenant les informations
+  
+    if (!geojson || !geojson.features || geojson.features.length === 0) {
+      trajetDiv.innerHTML = "<p style='color: red;'>Aucune place de stationnement PMR n'est accessible pour se rendre à l'ERP sélectionné.</p>";
+      return;
+    }
+  
+    // Supprimer l'ancien trajet s'il existe
+    if (trajetLayer) {
+      map.removeLayer(trajetLayer);
+    }
+  
+    const features = new ol.format.GeoJSON().readFeatures(geojson, {
+      dataProjection: 'EPSG:2154',
+      featureProjection: 'EPSG:2154'
+    });
+  
+    // Ajouter la couche du nouveau trajet
+    trajetLayer = new ol.layer.Vector({
+      source: new ol.source.Vector({ features }),
+      style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: '#FF0000',
+          width: 3
+        })
+      })
+    });
+    map.addLayer(trajetLayer);
+
+  
+    //Calcul de la longueur du trajet
+    let totalLength = 0;
+    features.forEach(feature => {
+      if (feature.getGeometry().getType() === 'LineString') {
+        totalLength += feature.getGeometry().getLength(); // en mètres (si la projection est bien en mètres)
+      }
+    });
+
+	//affichage des informations sur la page
+    trajetDiv.innerHTML = `
+        <p><strong>ERP sélectionnée :</strong> ${selectedErpInfos.name}</p>
+        <p>Accessibilité : ${selectedErpInfos.accessible.slice(4)}</p>
+        <p>Type d'ERP : ${selectedErpInfos.erptype}</p>
+        <p>Adresse : ${selectedErpInfos.adresse}</p>
+        <p><strong>Longueur du trajet :</strong> ${Math.round(totalLength)} mètres</p>
+      `;
+
+
+  }
+
+  //ajout d'une barre d'echelle
+  const scaleLineControl = new ol.control.ScaleLine();
+  map.addControl(scaleLineControl);
+</script>
+</html>

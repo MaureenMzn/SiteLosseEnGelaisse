@@ -1,0 +1,352 @@
+/*import de la typographie quicksand*/
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap');
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9fb;
+    color: #333;
+    height: 100vh;
+    overflow: auto; 
+}
+
+/* En-tête fixe */
+#entete {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px; /* hauteur fixe de l'entête */
+  border: 2px solid #bdb2ff;
+  background-color: #e0f7fa;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Menu fixe à gauche */
+#menu {
+  position: fixed;
+  top: 80px; /* juste sous l'entête */
+  left: 0;
+  width: 20%;
+  max-width: 230px;
+  height: calc(100vh - 80px); /* plein écran sous l'entête */
+  background-color: #ffffd1;
+  border: 2px solid #fff7ae;
+  padding: 20px 15px;
+  box-sizing: border-box;
+  overflow-y: auto; /* scroll si trop long */
+  border-radius: 0 0 0 10px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+  z-index: 900;
+}
+
+#contenu {
+  position: absolute;
+  top: 80px;
+  left: min(20%, 230px);
+  width: calc(100% - min(20%, 230px));
+  background-color: #d5fdd5;
+  padding: 2%;
+  border-radius: 10px;
+  overflow: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+
+/* Catégories principales */
+.menu-main {
+    display: block;
+    background-color: #fff9e6;
+    color: #333;
+    text-decoration: none;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-weight: 700;
+    font-size: 1.1em;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+.menu-main:hover {
+    background-color: #f0e7ff; 
+}
+
+/* Flèche de menu collapsible */
+.menu-collapsible .arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%) rotate(0deg);
+    transition: transform 0.3s ease;
+    font-size: 1.2em;
+    color: #6c63ff;
+    pointer-events: none;
+}
+
+/* Sous-menu (caché par défaut) */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-left: 15px;
+    margin-top: 15px;
+}
+
+/* Liens sous-menu */
+.menu-sub {
+    display: block;
+    background-color: #f9f9fb;
+    color: #333;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.03);
+    transition: background-color 0.3s ease;
+}
+
+.menu-sub:hover {
+    background-color: #d3cfff; 
+}
+
+/* Classe qui ouvre le sous-menu */
+.submenu.open {
+    max-height: 200px; /* assez grand pour les 2 liens */
+}
+
+/* Flèche tournée quand ouvert */
+.menu-collapsible.open .arrow {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.save {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1100;
+}
+
+#SaveCarto {
+    background-color: #dabfff; 
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+#SaveCarto:hover {
+    background-color: #c5a3f3;
+}
+
+.carto {
+  text-align: center;
+  border-radius: 10px;
+  border: 2px solid #2e7d32;
+  width: 100%;
+  height: 100%; 
+}
+/* Conteneur général */
+#block_carto {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  gap: 1em 2em;
+  height: 85%;
+  border-radius: 12px;
+}
+
+/* Menu des couches */
+#layer.carto {
+  background: #f9faf9;
+  box-shadow: inset 0 0 6px rgba(0, 100, 0, 0.05);
+  font-family: 'Quicksand', sans-serif;
+  color: #2e7d32; 
+  font-weight: 600;
+  font-size: 1.1em;
+  padding-left:10px;
+  padding-right:10px;
+}
+
+/* Titres du menu */
+#layer.carto > text, #layer.carto > div:first-child {
+  margin-bottom: 1em;
+}
+
+
+.layer-toggle:hover {
+  border-color: #2e7d32; 
+  box-shadow: 0 2px 8px rgba(46,125,50,0.25);
+}
+
+.layer-toggle {
+  display: flex;
+  flex-direction: column; 
+  background: #fff;
+  border: 1.5px solid #c8e6c9;
+  border-radius: 8px;
+  padding: 0.8em 1em;
+  margin-bottom: 1em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.layer-toggle > .header {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.layer-options {
+  display: none;  /* caché par défaut */
+  margin-top: 0.5em;
+  background: #e8f5e9;
+  padding: 0.8em 1em;
+  border-radius: 8px;
+  box-shadow: inset 0 0 4px rgba(46,125,50,0.15);
+  font-size: 0.9em;
+  color: #2e7d32;
+}
+.layer-options.open {
+  display: block;
+}
+
+
+
+
+/* Label des couches */
+.layer-toggle label {
+  flex-grow: 1;
+  cursor: pointer;
+  color: #2e7d32;
+  user-select: none;
+  font-weight: 600;
+}
+
+/* Bouton "..." */
+.layer-toggle button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.2em;
+  line-height: 1;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.layer-toggle button:hover {
+  background: #1b4d21;
+}
+
+/* Inputs range et select */
+.opacity-slider,
+.style-selector,
+#date-input {
+  width: 90%;
+  margin-top: 0.3em;
+  border-radius: 5px;
+  border: 1px solid #a5d6a7;
+  padding: 0.3em 0.5em;
+  font-size: 0.95em;
+  color: #2e7d32;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.opacity-slider:hover,
+.style-selector:hover,
+#date-input:hover {
+  border-color: #2e7d32;
+}
+
+/* Conteneur date */
+#date-filter-container {
+  margin-top: 0.8em;
+}
+
+/* Conteneur légende */
+#legend-container {
+  margin-top: 0.8em;
+  font-size: 0.9em;
+  color: #1b4d21;
+}
+
+
+#titre {
+    text-align: center;
+    color: #a573f6; 
+    font-family: 'Quicksand', sans-serif;
+    font-size: 3em;
+    margin: 0;
+    padding: 20px 0;
+}
+h2 {
+  font-family: 'Quicksand', sans-serif;
+  color: #2e7d32; 
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+input[type="checkbox"] {
+  accent-color: #2e7d32;
+  width : 20px;
+  height :20px;
+}
+input[type="range"] {
+  accent-color: #2e7d32;
+}
+
+
+
+
+#bas_page {
+  text-align: center;
+  padding: 10px;
+  background-color: #e3e3f3;
+  border-top: 1px solid #ccc;
+  color: #555;
+  font-size: 0.9em;
+}
+
+
+
+
+	/* Style pour le point symbolique */
+.legend-point {
+	width: 15px;
+	height: 15px;
+	border-radius: 50%; /* Rendre le point rond */
+	display: inline-block;
+	margin-right: 8px;
+}
+#north-arrow {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 50px;
+}
+
+#north-arrow img {
+  width: 100%;
+  transform: rotate(0deg); /* animé en JS lorsque la carte pivote */
+}

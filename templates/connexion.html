@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Identification</title>
+</head>
+<body>
+
+	<div id="entete">
+		<a href="http://151.80.27.28:5003/">Losse-en-Gelaisse</a>
+	</div>
+ 
+  <h2>Connexion</h2>
+    <!--Lance la fonction authentification crée dans app.py-->
+    <form method="POST" action="{{ url_for('authentification') }}">
+        <label for="identifiant">Identifiant :</label>
+        <input type="text" id="identifiant" name="identifiant" required><br><br>
+
+        <label for="mdp">Mot de passe :</label>
+        <input type="password" id="mdp" name="mdp" required><br><br>
+        <!--On s'assure que les élements mdp et identifiant soient rempli-->
+
+        <button type="submit">Envoyer</button>
+    </form>
+	
+
+</body>
+</html>

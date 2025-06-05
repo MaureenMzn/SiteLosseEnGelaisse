@@ -1,0 +1,43 @@
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "88:80"
+    volumes:
+      - ./nginx_html:/usr/share/nginx/html
+
+  postgis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_USER=momo
+      - POSTGRES_PASSWORD=mouhmouh
+      - POSTGRES_DB=postgres
+    volumes:
+      - python_backend_data:/var/lib/postgresql/data
+    ports:
+      - "15432:5432"
+      
+  geonetwork:
+    image: geonetwork:3.12-postgres
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      - POSTGRES_DB_HOST=postgis
+      - POSTGRES_DB_USERNAME=momo
+      - POSTGRES_DB_PASSWORD=mouhmouh
+      - POSTGRES_DB_PORT=5432
+      - DATA_DIR=/var/lib/geonetwork_data
+      - JAVA_OPTS=-Dgeonetwork.init.database=true -Djdbc.url=jdbc:postgresql://postgis:5432/postgres
+    depends_on:
+      - postgis
+    volumes:
+      - geonetwork:/var/lib/geonetwork_data
+
+  
+
+volumes:
+  python_backend_data:
+  geonetwork:

@@ -1,0 +1,127 @@
+INSERT INTO accessibilite.troncon_cheminement(location)
+WITH req AS (
+    SELECT 
+        troncon_cheminement.idtroncon AS fid_v, 
+        erp.iderp AS fid_erp,  -- Utilisation de "iderp" pour ERP
+        troncon_cheminement.location AS geom_v,  -- Utilisation de "location" pour la géométrie dans troncon_cheminement
+        erp.location AS geom_erp,  -- Utilisation de "location" pour la géométrie dans ERP
+        round(ST_Distance(troncon_cheminement.location, erp.location)) AS distance,  -- Calcul de la distance entre les géométries
+        rank() OVER (PARTITION BY erp.iderp ORDER BY (min(troncon_cheminement.location <-> erp.location))) AS rang  -- Calcul du rang
+    FROM accessibilite.troncon_cheminement
+    JOIN accessibilite.erp  -- Changement de "stationnement" à "erp"
+        ON ST_DWithin(troncon_cheminement.location, erp.location, 500::double precision)  -- Ajuste la distance seuil si nécessaire
+    GROUP BY troncon_cheminement.idtroncon, erp.iderp, troncon_cheminement.location, erp.location
+)
+SELECT ST_ShortestLine(geom_v, geom_erp) AS location  -- Utilisation de "location" pour l'insertion de la géométrie
+FROM req
+WHERE rang = 1;
+
+INSERT INTO accessibilite.troncon_cheminement(location)
+WITH req AS (
+    SELECT 
+        troncon_cheminement.idtroncon AS fid_v, 
+        stationnement.idstationnement AS fid_stationnement,  -- Utilisation de "idstationnement" pour stationnement
+        troncon_cheminement.location AS geom_v,  -- Utilisation de "location" pour la géométrie dans troncon_cheminement
+        stationnement.location AS geom_stationnement,  -- Utilisation de "location" pour la géométrie dans stationnement
+        round(ST_Distance(troncon_cheminement.location, stationnement.location)) AS distance,  -- Calcul de la distance entre les géométries
+        rank() OVER (PARTITION BY stationnement.idstationnement ORDER BY (min(troncon_cheminement.location <-> stationnement.location))) AS rang  -- Calcul du rang
+    FROM accessibilite.troncon_cheminement
+    JOIN accessibilite.stationnement  -- Changement de "pmr" à "stationnement"
+        ON ST_DWithin(troncon_cheminement.location, stationnement.location, 500::double precision)  -- Ajuste la distance seuil si nécessaire
+    GROUP BY troncon_cheminement.idtroncon, stationnement.idstationnement, troncon_cheminement.location, stationnement.location
+)
+SELECT ST_ShortestLine(geom_v, geom_stationnement) AS location  -- Utilisation de "location" pour l'insertion de la géométrie
+FROM req
+WHERE rang = 1;
+
+
+-- Rajoute des noeuds aux intersections de tronçons de cheminement
+SELECT pgr_nodeNetwork(
+    'accessibilite.troncon_cheminement',   -- Table des tronçons de cheminement
+    0.001,                                 -- Tolérance pour les intersections (en mètres ou autres unités de votre SRID)
+    'idtroncon',                           -- Identifiant unique de chaque tronçon
+    'location'                             -- Colonne contenant la géométrie des tronçons (les segments)
+);
+
+SELECT pgr_createTopology('accessibilite.troncon_cheminement_noded', 0.001, 'location');
+
+
+
+CREATE OR REPLACE FUNCTION accessibilite.f_trajet_erp(
+    p_erp_id INT
+)
+RETURNS TABLE (
+    seq INTEGER,
+    node INTEGER,
+    edge INTEGER,
+    location geometry,
+    origine TEXT  -- Ajout de la colonne "origine" pour préciser l'origine des géométries
+) AS $$
+DECLARE
+    v_stationnement_id INT;
+BEGIN
+    -- Trouver l'ID du stationnement le plus proche de l'ERP
+    SELECT s.idstationnement  -- Alias 's' pour la table 'stationnement'
+    INTO v_stationnement_id
+    FROM accessibilite.stationnement s
+    ORDER BY s.location <-> (  -- Distance géographique entre l'ERP et les stationnements
+        SELECT e.location  -- Alias 'e' pour la table 'erp'
+        FROM accessibilite.erp e
+        WHERE e.iderp = p_erp_id  -- On fait référence à l'ERP passé en paramètre
+    )
+    LIMIT 1;
+
+    -- Retourner le résultat du trajet le plus court entre l'ERP et le stationnement
+    RETURN QUERY
+    SELECT 
+        CAST(dijkstra.seq AS INTEGER),  -- Convertir 'seq' de BIGINT à INTEGER
+        CAST(dijkstra.node AS INTEGER),  -- Convertir 'node' de BIGINT à INTEGER
+        CAST(dijkstra.edge AS INTEGER),  -- Convertir 'edge' de BIGINT à INTEGER
+        tc.location,  -- 'location' reste inchangé car il est déjà de type 'geometry'
+        -- Ajout de la colonne 'origine' pour préciser l'origine des géométries
+        CASE
+            WHEN dijkstra.node = (
+                SELECT id 
+                FROM accessibilite.troncon_cheminement_noded_vertices_pgr
+                WHERE the_geom = (
+                    SELECT e.location  -- Alias 'e' pour la table 'erp'
+                    FROM accessibilite.erp e
+                    WHERE e.iderp = p_erp_id
+                    LIMIT 1
+                )
+                LIMIT 1
+            ) THEN 'ERP'  -- Si la géométrie appartient à l'ERP
+            ELSE 'Stationnement'  -- Sinon, elle appartient au stationnement
+        END AS origine
+    FROM pgr_dijkstra(
+        'SELECT id, source, target, ST_Length(location) AS cost 
+         FROM accessibilite.troncon_cheminement_noded',
+         
+        -- Noeud source : le plus proche de l’ERP
+        (SELECT id 
+         FROM accessibilite.troncon_cheminement_noded_vertices_pgr
+         ORDER BY the_geom <-> (
+             SELECT e.location  -- Alias 'e' pour la table 'erp'
+             FROM accessibilite.erp e
+             WHERE e.iderp = p_erp_id
+             LIMIT 1
+         )
+         LIMIT 1),
+         
+        -- Noeud cible : le plus proche du stationnement trouvé
+        (SELECT id 
+         FROM accessibilite.troncon_cheminement_noded_vertices_pgr
+         ORDER BY the_geom <-> (
+             SELECT s.location  -- Alias 's' pour la table 'stationnement'
+             FROM accessibilite.stationnement s
+             WHERE s.idstationnement = v_stationnement_id
+             LIMIT 1
+         )
+         LIMIT 1),
+         
+        false
+    ) AS dijkstra
+    JOIN accessibilite.troncon_cheminement_noded tc
+      ON tc.id = dijkstra.edge;
+END;
+$$ LANGUAGE plpgsql;
